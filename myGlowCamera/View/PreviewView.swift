@@ -106,6 +106,7 @@ struct PreviewView: View {
                     .padding(.bottom, 30)
                 }
                 .frame(maxWidth: .infinity)
+                //TODO: mudar pra vstack
                 HStack {
                     Button {
                         model.camera.toggleFlash()
