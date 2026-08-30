@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CameraView: View {
-    @State private var model = CameraModel()
+    @Environment(CameraModel.self) var model: CameraModel
 
     var body: some View {
 
