@@ -414,8 +414,8 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
 
 
 private enum RotationAngle: CGFloat {
-    case portrait = 90
+    case portrait = 180
     case portraitUpsideDown = 270
-    case landscapeRight = 180
+    case landscapeRight = 90
     case landscapeLeft = 0
 }
