@@ -198,7 +198,7 @@ class CameraManager: NSObject {
             photoSettings.photoQualityPrioritization = .balanced
             
             if let photoOutputVideoConnection = photoOutput.connection(with: .video) {
-                photoOutputVideoConnection.videoRotationAngle = RotationAngle.portrait.rawValue
+                photoOutputVideoConnection.videoRotationAngle = RotationAngle.landscapeRight.rawValue
             }
             
             photoOutput.capturePhoto(with: photoSettings, delegate: self)
@@ -407,15 +407,15 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = sampleBuffer.imageBuffer else { return }
-        connection.videoRotationAngle = RotationAngle.portrait.rawValue
+        connection.videoRotationAngle = RotationAngle.landscapeRight.rawValue
         addToPreviewStream?(CIImage(cvPixelBuffer: pixelBuffer))
     }
 }
 
 
 private enum RotationAngle: CGFloat {
-    case portrait = 180
-    case portraitUpsideDown = 270
-    case landscapeRight = 90
-    case landscapeLeft = 0
+    case portrait = 0
+    case portraitUpsideDown = 90
+    case landscapeRight = 180
+    case landscapeLeft = 270
 }

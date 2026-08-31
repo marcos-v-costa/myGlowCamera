@@ -17,8 +17,7 @@ struct SaveImageView: View {
     
     var body: some View {
         ImageView(image: model.photoToken?.image)
-            .padding(.bottom, footerHeight + 50)
-            .padding(.top, footerHeight + 50)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .top) {
                 buttonsView()
                     .frame(height: headerHeight)
