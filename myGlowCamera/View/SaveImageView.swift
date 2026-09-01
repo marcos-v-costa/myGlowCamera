@@ -12,32 +12,43 @@ struct SaveImageView: View {
     
     @State private var saved = false
     
-    private let headerHeight: CGFloat = 90.0
-    private let footerHeight: CGFloat = 110.0
-    
     var body: some View {
-        ImageView(image: model.photoToken?.image)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .top) {
-                buttonsView()
-                    .frame(height: headerHeight)
-                    .frame(maxWidth: .infinity, alignment: .center)
+        NavigationStack {
+            ZStack{
+                Color(.cameraBackground).ignoresSafeArea(edges: .all)
+                HStack{
+                    ImageView(image: model.photoToken?.image)
+                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    buttonsView()
+                }
+                .toolbar {
+                    ToolbarItem (placement: .navigationBarLeading) {
+                        Button {
+                            //
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(.white)
+                        }
+                        .foregroundStyle(.white)
+                        .buttonStyle(.glassProminent)
+                        .tint(.buttonsCamera)
+                    }
+                }
             }
-            .padding(.bottom, 16)
-            .background(Color.black)
+        }
     }
     
     private func buttonsView() -> some View {
-        HStack {
+        VStack {
             Button {
                 model.photoToken = nil
             } label: {
-                Image(systemName: "xmark")
+                Text("Tirar novamente")
+                    .padding(12)
             }
+            .padding()
             .buttonStyle(.glass)
-            
-            Spacer()
-            
             Button {
                 guard let photoToken = model.photoToken else { return }
                 Task {
@@ -52,16 +63,23 @@ struct SaveImageView: View {
                 }
                 
             } label: {
-                Image(systemName: saved ? "checkmark" : "square.and.arrow.down")
+                HStack{
+                    Text("Salvar foto")
+                }
+                .padding(12)
+                
             }
-            .buttonStyle(.glass)
-
-            
+            .foregroundStyle(.white)
+            .buttonStyle(.glassProminent)
+            .tint(.buttonsCamera)
         }
+        .padding()
         .font(.system(size: 24, weight: .bold))
-        .foregroundColor(.white)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.horizontal, 32)
-        .padding(.top, 32)
     }
+}
+
+#Preview {
+    @Previewable @State var model = CameraModel()
+    SaveImageView()
+        .environment(model)
 }

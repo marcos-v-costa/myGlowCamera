@@ -19,7 +19,6 @@ struct ImageView: View {
                     .scaledToFill()
                     .frame(width: width, height: height)
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
             }
         }
     }

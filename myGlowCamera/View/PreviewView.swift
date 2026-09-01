@@ -14,9 +14,11 @@ struct PreviewView: View {
         NavigationStack {
             ZStack {
                 Color(.cameraBackground).ignoresSafeArea(edges: .all)
-                HStack {
+                HStack (spacing: 32) {
                     ImageView(image: model.previewImage)
+                        .clipShape(RoundedRectangle(cornerRadius: 24))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .border(Color.red, width: 1)
                     buttonsView()
                 }
                 if let countdown = model.countdown {
@@ -68,7 +70,7 @@ struct PreviewView: View {
     private func buttonsView() -> some View {
         HStack (spacing: 0) {
             //BOTÕES DE ZOOM (0.5, 1 e 2)
-            VStack(spacing: 30) {
+            VStack(spacing: 50) {
                     Button("0.5x") {
                         model.selectZoom(0.5)
                     }
@@ -76,8 +78,8 @@ struct PreviewView: View {
                     .overlay {
                         if model.selectedZoom == 0.5 {
                             Text("0.5x")
-                                .bold()
-                                .frame(minWidth: 40, minHeight: 40)
+                                .font(.system(size: 18, weight: .black, design: .rounded))
+                                .frame(minWidth: 50, minHeight: 50)
                                 .background(Color.buttonsCamera)
                                 .clipShape(Circle())
                         }
@@ -90,8 +92,8 @@ struct PreviewView: View {
                     .overlay {
                         if model.selectedZoom == 1 {
                             Text("1x")
-                                .bold()
-                                .frame(minWidth: 40, minHeight: 40)
+                                .font(.system(size: 18, weight: .black, design: .rounded))
+                                .frame(minWidth: 50, minHeight: 50)
                                 .background(Color.buttonsCamera)
                                 .clipShape(Circle())
                         }
@@ -105,14 +107,15 @@ struct PreviewView: View {
                     .overlay {
                         if model.selectedZoom == 2 {
                             Text("2x")
-                                .bold()
-                                .frame(minWidth: 40, minHeight: 40)
+                                .font(.system(size: 18, weight: .black, design: .rounded))
+                                .frame(minWidth: 50, minHeight: 50)
                                 .background(Color.buttonsCamera)
                                 .clipShape(Circle())
                         }
                     }
             }
             .foregroundStyle(.white)
+            .padding(.bottom, 32)
 
             Spacer()
             //TODO: mudar pra vstack
@@ -171,8 +174,13 @@ struct PreviewView: View {
         }
         .frame(maxWidth: 240, maxHeight: .infinity)
         .padding(.vertical, 24)
-        .padding(.horizontal, 24)
 
     }
     
+}
+
+#Preview {
+    @Previewable @State var model = CameraModel()
+    PreviewView()
+        .environment(model)
 }
