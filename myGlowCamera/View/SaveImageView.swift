@@ -17,8 +17,7 @@ struct SaveImageView: View {
             ZStack{
                 Color(.cameraBackground).ignoresSafeArea(edges: .all)
                 HStack{
-                    ImageView(image: model.photoToken?.image)
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                    PolaroidCard(image: model.photoToken?.image)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     buttonsView()
                 }
