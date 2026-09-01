@@ -53,12 +53,8 @@ struct SaveImageView: View {
                 Task {
                     await model.photoLibraryManager?.savePhoto(imageData: photoToken.imageData)
                     
-                    withAnimation {
-                        self.saved = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                            self.saved = false
-                        })
-                    }
+                    self.saved = true
+                    print(saved)
                 }
                 
             } label: {
@@ -71,6 +67,17 @@ struct SaveImageView: View {
             .foregroundStyle(.white)
             .buttonStyle(.glassProminent)
             .tint(.buttonsCamera)
+        }
+        .alert(
+            "Fotos salvas!",
+            isPresented: $saved
+        ) {
+            Button("OK", role: .cancel) {
+                self.saved = false
+                print(saved)
+            }
+        } message: {
+            Text("A foto foi adicionada à sua galeria.")
         }
         .padding()
         .font(.system(size: 24, weight: .bold))
