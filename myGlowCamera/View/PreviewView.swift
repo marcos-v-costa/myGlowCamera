@@ -118,7 +118,6 @@ struct PreviewView: View {
             .padding(.bottom, 32)
 
             Spacer()
-            //TODO: mudar pra vstack
             //BOTÕES DE TIRAR FOTO, FLASH e SWITCH
             VStack {
                 Spacer()

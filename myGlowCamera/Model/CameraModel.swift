@@ -21,12 +21,17 @@ class CameraModel {
     
     init() {
         Task {
+            self.photoLibraryManager = await PhotoLibraryManager()
+        }
+        
+        Task {
             await handleCameraPreviews()
         }
         
         Task {
             await handleCameraPhotos()
         }
+        
     }
     
     func handleCameraPreviews() async {
@@ -52,22 +57,21 @@ class CameraModel {
     }
     
     private func unpackPhoto(_ photo: AVCapturePhoto) -> PhotoData? {
-        guard let imageData = photo.fileDataRepresentation() else { return nil }
-        guard let cgImage = photo.cgImageRepresentation(),
-              let metadataOrientation = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
-              let cgImageOrientation = CGImagePropertyOrientation(rawValue: metadataOrientation)
-        else { return nil }
-        
-        let imageOrientation = UIImage.Orientation(cgImageOrientation)
-        let uiImage = UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation)
-        let image = Image(uiImage: uiImage)
-        let photoDimensions = photo.resolvedSettings.photoDimensions
-        let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
-        guard let compressedImageData = uiImage.jpegData(compressionQuality: 0.5) else {
-            return nil
-        }
-        return PhotoData(image: image, imageData: compressedImageData, imageSize: imageSize)
-    }
+         guard let imageData = photo.fileDataRepresentation() else { return nil }
+         guard let cgImage = photo.cgImageRepresentation(),
+               let metadataOrientation = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
+               let cgImageOrientation = CGImagePropertyOrientation(rawValue: metadataOrientation)
+         else { return nil }
+         
+         let imageOrientation = UIImage.Orientation(cgImageOrientation)
+         let image = Image(uiImage: UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation))
+         
+         let photoDimensions = photo.resolvedSettings.photoDimensions
+         let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
+
+         return PhotoData(image: image, imageData: imageData, imageSize: imageSize)
+     }
+ 
         
     var timerLabel: String {
         cameraTimer == 0 ? "Off" : "\(cameraTimer)s"
