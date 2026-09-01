@@ -11,10 +11,14 @@ struct ImageView: View {
     var image: Image?
     var body: some View {
         GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
             if let image = image {
                 image
                     .resizable()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .scaledToFill()
+                    .frame(width: width, height: height)
+                    .clipped()
             }
         }
     }

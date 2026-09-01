@@ -15,8 +15,15 @@ class CameraModel {
     var photoLibraryManager: PhotoLibraryManager?
     var previewImage: Image?
     var photoToken: PhotoData?
+    var selectedZoom: CGFloat = 1
+    var cameraTimer = 0
+    var countdown: Int?
     
     init() {
+        Task {
+            self.photoLibraryManager = await PhotoLibraryManager()
+        }
+        
         Task {
             await handleCameraPreviews()
         }
@@ -24,6 +31,7 @@ class CameraModel {
         Task {
             await handleCameraPhotos()
         }
+        
     }
     
     func handleCameraPreviews() async {
@@ -49,21 +57,86 @@ class CameraModel {
     }
     
     private func unpackPhoto(_ photo: AVCapturePhoto) -> PhotoData? {
-        guard let imageData = photo.fileDataRepresentation() else { return nil }
-        guard let cgImage = photo.cgImageRepresentation(),
-              let metadataOrientation = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
-              let cgImageOrientation = CGImagePropertyOrientation(rawValue: metadataOrientation)
-        else { return nil }
+         guard let imageData = photo.fileDataRepresentation() else { return nil }
+         guard let cgImage = photo.cgImageRepresentation(),
+               let metadataOrientation = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
+               let cgImageOrientation = CGImagePropertyOrientation(rawValue: metadataOrientation)
+         else { return nil }
+         
+         let imageOrientation = UIImage.Orientation(cgImageOrientation)
+         let image = Image(uiImage: UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation))
+         
+         let photoDimensions = photo.resolvedSettings.photoDimensions
+         let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
+
+         return PhotoData(image: image, imageData: imageData, imageSize: imageSize)
+     }
+ 
         
-        let imageOrientation = UIImage.Orientation(cgImageOrientation)
-        let uiImage = UIImage(cgImage: cgImage, scale: 1, orientation: imageOrientation)
-        let image = Image(uiImage: uiImage)
-        let photoDimensions = photo.resolvedSettings.photoDimensions
-        let imageSize = (width: Int(photoDimensions.width), height: Int(photoDimensions.height))
-        guard let compressedImageData = uiImage.jpegData(compressionQuality: 0.5) else {
-            return nil
+    var timerLabel: String {
+        cameraTimer == 0 ? "Off" : "\(cameraTimer)s"
+    }
+    
+    func changeCameraTimer() {
+        switch cameraTimer {
+        case 0:
+            cameraTimer = 3
+            
+        case 3:
+            cameraTimer = 5
+            
+        case 5:
+            cameraTimer = 10
+            
+        default:
+            cameraTimer = 0
         }
-        return PhotoData(image: image, imageData: compressedImageData, imageSize: imageSize)
+    }
+    
+    func selectZoom(_ value: CGFloat) {
+        selectedZoom = value
+        
+        if camera.isUsingFrontCaptureDevice {
+            camera.setZoom(factor: value)
+            return
+        }
+        
+        switch value {
+        case 0.5:
+            camera.selectBackCamera(lens: .ultraWide)
+        case 1:
+            camera.selectBackCamera(lens: .wide)
+            camera.setZoom(factor: 1)
+        case 2:
+            camera.setZoom(factor: 2)
+        default:
+            break
+        }
+    }
+    
+    func startCameraTimer() {
+        guard cameraTimer > 0 else {
+            camera.takePhoto()
+            return
+        }
+        
+        countdown = cameraTimer
+        
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+            guard let self, let current = self.countdown else {
+                timer.invalidate()
+                return
+            }
+            
+            if current <= 1 {
+                timer.invalidate()
+                self.countdown = nil
+                self.camera.takePhoto()
+            } else {
+                self.countdown = current - 1
+            }
+        }
+        
     }
 }
 
