@@ -18,11 +18,20 @@ struct SaveImageView: View {
     
     var body: some View {
         ZStack {
-            Color(.cameraBackground).ignoresSafeArea(edges: .all)
-            HStack {
+//            Color(.cameraBackground).ignoresSafeArea(edges: .all)
+            Image("SaveImageViewBackground")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea(edges: .all)
+            
+            HStack  {
                 polaroid
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .rotationEffect(.degrees(-4.08))
+                    .border(Color.red, width: 1)
                 buttonsView()
+                    .border(Color.red, width: 1)
+
             }
         }
         .toolbar {
@@ -43,12 +52,16 @@ struct SaveImageView: View {
     }
     
     private func buttonsView() -> some View {
-        VStack {
+        HStack {
             Button {
                 model.photoToken = nil
             } label: {
-                Text("Tirar novamente")
-                    .padding(12)
+                HStack {
+                    Image(systemName: "arrow.trianglehead.counterclockwise")
+                    Text("Refazer")
+                }
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .padding(12)
             }
             .padding()
             .buttonStyle(.glass)
@@ -64,8 +77,10 @@ struct SaveImageView: View {
                 }
             } label: {
                 HStack {
-                    Text("Salvar foto")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Exportar")
                 }
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
                 .padding(12)
             }
             .foregroundStyle(.white)
@@ -89,7 +104,6 @@ struct SaveImageView: View {
     
     var polaroid: some View {
         PolaroidCard(image: model.photoToken?.image)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     var renderedPolaroid: Data? {

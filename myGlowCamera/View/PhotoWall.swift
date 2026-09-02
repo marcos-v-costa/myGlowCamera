@@ -25,7 +25,7 @@ struct PhotoWall: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Image("savePhotoBackground")
+                Image("PhotoWallBackground")
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
