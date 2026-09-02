@@ -30,17 +30,6 @@ struct PreviewView: View {
             }
             
             .toolbar {
-                ToolbarItem (placement: .navigationBarLeading) {
-                    Button {
-                        //
-                    } label: {
-                        Image(systemName: "chevron.left")
-                    }
-                    .foregroundStyle(.white)
-                    .buttonStyle(.glassProminent)
-                    .tint(.buttonsCamera)
-                }
-                
                 ToolbarItem (placement: .title) {
                     Text("GlowShot")
                         .foregroundStyle(Color.black)

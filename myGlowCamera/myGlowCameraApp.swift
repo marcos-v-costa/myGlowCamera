@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct myGlowCameraApp: App {
@@ -15,6 +16,7 @@ struct myGlowCameraApp: App {
         WindowGroup {
             ContentView()
                 .environment(model)
+                .modelContainer(for: PhotoModel.self)
         }
     }
 }
