@@ -10,7 +10,7 @@ import SwiftUI
 import Photos
 
 @Observable
-class CameraModel {
+final class CameraModel {
     let camera = CameraManager()
     var photoLibraryManager: PhotoLibraryManager?
     var previewImage: Image?

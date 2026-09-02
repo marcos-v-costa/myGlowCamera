@@ -61,6 +61,10 @@ struct PhotoWall: View {
                         Image(systemName: "plus")
                     }
                 }
+                ToolbarItem(placement: .title) {
+                    Text("myPhotos")
+                        .foregroundStyle(Color.black)
+                }
             }
             .navigationDestination(isPresented: $showingCamera) {
                 CameraView()

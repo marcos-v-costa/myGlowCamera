@@ -18,7 +18,6 @@ struct SaveImageView: View {
     
     var body: some View {
         ZStack {
-//            Color(.cameraBackground).ignoresSafeArea(edges: .all)
             Image("SaveImageViewBackground")
                 .resizable()
                 .scaledToFill()
@@ -37,10 +36,17 @@ struct SaveImageView: View {
         .toolbar {
             ToolbarItem (placement: .navigationBarLeading) {
                 Button {
+                    Task {
+                        guard let photo = renderedPolaroidData else { return }
+                        
+                        let polaroid = PhotoModel(imageData: photo)
+                        modelContext.insert(polaroid)
+                        model.photoToken = nil
+                        
+                    }
                     dismiss()
-                    model.photoToken = nil
                 } label: {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
                         .foregroundStyle(.white)
                 }
                 .foregroundStyle(.white)
@@ -65,27 +71,16 @@ struct SaveImageView: View {
             }
             .padding()
             .buttonStyle(.glass)
-            Button {
-                Task {
-                    guard let photo = renderedPolaroid else { return }
-                    await model.photoLibraryManager?.savePhoto(imageData: photo)
-                    
-                    let polaroid = PhotoModel(imageData: photo)
-                    modelContext.insert(polaroid)
-                    
-                    self.saved = true
-                }
-            } label: {
+            ShareLink(item: renderedPolaroidPng, preview: SharePreview(Text("Polaroid"), image: renderedPolaroidPng)) {
                 HStack {
                     Image(systemName: "square.and.arrow.up")
                     Text("Exportar")
                 }
                 .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .padding(12)
+                .padding()
             }
-            .foregroundStyle(.white)
-            .buttonStyle(.glassProminent)
-            .tint(.buttonsCamera)
+            .foregroundStyle(Color.white)
+            .buttonStyle(.glass)
         }
         .alert(
             "Fotos salvas!",
@@ -106,10 +101,21 @@ struct SaveImageView: View {
         PolaroidCard(image: model.photoToken?.image)
     }
     
-    var renderedPolaroid: Data? {
+    var renderedPolaroidData: Data? {
         let renderer = ImageRenderer(content: polaroid)
         renderer.scale = displayScale
         return renderer.uiImage?.pngData()
+    }
+    
+    var renderedPolaroidPng: Image {
+        let renderer = ImageRenderer(content: polaroid)
+        renderer.scale = displayScale
+        
+        if let uiImage = renderer.uiImage {
+            return Image(uiImage: uiImage)
+                .resizable()
+        }
+        return Image("Doll1")
     }
 }
 
