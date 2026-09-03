@@ -6,75 +6,118 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SaveImageView: View {
     @Environment(CameraModel.self) var model: CameraModel
-    
+    @Environment(\.displayScale) var displayScale
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
     @State private var saved = false
     
     var body: some View {
-        NavigationStack {
-            ZStack{
-                Color(.cameraBackground).ignoresSafeArea(edges: .all)
-                HStack{
-                    ImageView(image: model.photoToken?.image)
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    buttonsView()
-                }
-                .toolbar {
-                    ToolbarItem (placement: .navigationBarLeading) {
-                        Button {
-                            //
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.white)
-                        }
-                        .foregroundStyle(.white)
-                        .buttonStyle(.glassProminent)
-                        .tint(.buttonsCamera)
-                    }
-                }
+        ZStack {
+            Image("SaveImageViewBackground")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea(edges: .all)
+            
+            HStack  {
+                polaroid
+                    .rotationEffect(.degrees(-4.08))
+                    .border(Color.red, width: 1)
+                buttonsView()
+                    .border(Color.red, width: 1)
+
             }
         }
+        .toolbar {
+            ToolbarItem (placement: .navigationBarLeading) {
+                Button {
+                    savePhotoAndDismiss()
+                } label: {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .foregroundStyle(.white)
+                }
+                .foregroundStyle(.white)
+                .buttonStyle(.glassProminent)
+                .tint(.buttonsCamera)
+            }
+        }
+        .navigationBarBackButtonHidden(true)
     }
     
     private func buttonsView() -> some View {
-        VStack {
+        HStack {
             Button {
-                model.photoToken = nil
+                model.clearPhoto()
             } label: {
-                Text("Tirar novamente")
-                    .padding(12)
+                HStack {
+                    Image(systemName: "arrow.trianglehead.counterclockwise")
+                    Text("Refazer")
+                }
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .padding(12)
             }
             .padding()
             .buttonStyle(.glass)
-            Button {
-                guard let photoToken = model.photoToken else { return }
-                Task {
-                    await model.photoLibraryManager?.savePhoto(imageData: photoToken.imageData)
-                    
-                    withAnimation {
-                        self.saved = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                            self.saved = false
-                        })
-                    }
+            ShareLink(item: renderedPolaroidPng, preview: SharePreview(Text("Polaroid"), image: renderedPolaroidPng)) {
+                HStack {
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Exportar")
                 }
-                
-            } label: {
-                HStack{
-                    Text("Salvar foto")
-                }
-                .padding(12)
-                
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .padding()
             }
-            .foregroundStyle(.white)
-            .buttonStyle(.glassProminent)
-            .tint(.buttonsCamera)
+            .foregroundStyle(Color.white)
+            .buttonStyle(.glass)
+        }
+        .alert(
+            "Fotos salvas!",
+            isPresented: $saved
+        ) {
+            Button("OK", role: .cancel) {
+                model.clearPhoto()
+                dismiss()
+            }
+        } message: {
+            Text("A foto foi adicionada à sua galeria.")
         }
         .padding()
         .font(.system(size: 24, weight: .bold))
+    }
+    
+    var polaroid: some View {
+        PolaroidCard(image: model.photoToken?.image)
+    }
+    
+    var renderedPolaroidData: Data? {
+        let renderer = ImageRenderer(content: polaroid)
+        renderer.scale = displayScale
+        return renderer.uiImage?.pngData()
+    }
+    
+    var renderedPolaroidPng: Image {
+        let renderer = ImageRenderer(content: polaroid)
+        renderer.scale = displayScale
+        
+        if let uiImage = renderer.uiImage {
+            return Image(uiImage: uiImage)
+                .resizable()
+        }
+        return Image("Doll1")
+    }
+    
+    private func savePhotoAndDismiss() {
+        guard let photo = renderedPolaroidData else { return }
+        
+        let polaroid = PhotoModel(imageData: photo)
+        modelContext.insert(polaroid)
+        
+        model.clearPhoto()
+        dismiss()
     }
 }
 

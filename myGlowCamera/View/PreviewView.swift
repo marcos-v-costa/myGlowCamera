@@ -14,12 +14,14 @@ struct PreviewView: View {
         NavigationStack {
             ZStack {
                 Color(.cameraBackground).ignoresSafeArea(edges: .all)
-                HStack (spacing: 32) {
+                HStack  {
+                    Spacer()
                     ImageView(image: model.previewImage)
                         .clipShape(RoundedRectangle(cornerRadius: 24))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .border(Color.red, width: 1)
+                        .frame(maxWidth: 318, maxHeight: .infinity)
+                    Spacer()
                     buttonsView()
+                    Spacer()
                 }
                 if let countdown = model.countdown {
                     Text("\(countdown)")
@@ -30,17 +32,6 @@ struct PreviewView: View {
             }
             
             .toolbar {
-                ToolbarItem (placement: .navigationBarLeading) {
-                    Button {
-                        //
-                    } label: {
-                        Image(systemName: "chevron.left")
-                    }
-                    .foregroundStyle(.white)
-                    .buttonStyle(.glassProminent)
-                    .tint(.buttonsCamera)
-                }
-                
                 ToolbarItem (placement: .title) {
                     Text("GlowShot")
                         .foregroundStyle(Color.black)
@@ -71,52 +62,52 @@ struct PreviewView: View {
         HStack (spacing: 0) {
             //BOTÕES DE ZOOM (0.5, 1 e 2)
             VStack(spacing: 50) {
-                    Button("0.5x") {
-                        model.selectZoom(0.5)
+                Button("0.5x") {
+                    model.selectZoom(0.5)
+                }
+                .foregroundStyle(.buttonsCamera)
+                .overlay {
+                    if model.selectedZoom == 0.5 {
+                        Text("0.5x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
                     }
-                    .foregroundStyle(.buttonsCamera)
-                    .overlay {
-                        if model.selectedZoom == 0.5 {
-                            Text("0.5x")
-                                .font(.system(size: 18, weight: .black, design: .rounded))
-                                .frame(minWidth: 50, minHeight: 50)
-                                .background(Color.buttonsCamera)
-                                .clipShape(Circle())
-                        }
+                }
+                Button("1x") {
+                    model.selectZoom(1)
+                }
+                .foregroundStyle(.buttonsCamera)
+                .toggleStyle(.button)
+                .overlay {
+                    if model.selectedZoom == 1 {
+                        Text("1x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
                     }
-                    Button("1x") {
-                        model.selectZoom(1)
+                }
+                
+                Button("2x") {
+                    model.selectZoom(2)
+                }
+                .foregroundStyle(.buttonsCamera)
+                
+                .overlay {
+                    if model.selectedZoom == 2 {
+                        Text("2x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
                     }
-                    .foregroundStyle(.buttonsCamera)
-                    .toggleStyle(.button)
-                    .overlay {
-                        if model.selectedZoom == 1 {
-                            Text("1x")
-                                .font(.system(size: 18, weight: .black, design: .rounded))
-                                .frame(minWidth: 50, minHeight: 50)
-                                .background(Color.buttonsCamera)
-                                .clipShape(Circle())
-                        }
-                    }
-
-                    Button("2x") {
-                        model.selectZoom(2)
-                    }
-                    .foregroundStyle(.buttonsCamera)
-
-                    .overlay {
-                        if model.selectedZoom == 2 {
-                            Text("2x")
-                                .font(.system(size: 18, weight: .black, design: .rounded))
-                                .frame(minWidth: 50, minHeight: 50)
-                                .background(Color.buttonsCamera)
-                                .clipShape(Circle())
-                        }
-                    }
+                }
             }
             .foregroundStyle(.white)
-            .padding(.bottom, 32)
-
+            .padding(.bottom, 24)
+            
             Spacer()
             //BOTÕES DE TIRAR FOTO, FLASH e SWITCH
             VStack {
@@ -129,15 +120,14 @@ struct PreviewView: View {
                         Circle()
                             .fill(LinearGradient(
                                 stops: [
-                                    Gradient.Stop(color: Color(red: 0.71, green: 0.73, blue: 0.97), location: 0.00),
-                                    Gradient.Stop(color: Color(red: 0.52, green: 0.54, blue: 0.87), location: 0.95),
+                                Gradient.Stop(color: Color(red: 0.53, green: 0.58, blue: 0.77), location: 0.23),
+                                Gradient.Stop(color: Color(red: 0.33, green: 0.38, blue: 0.52), location: 0.95),
                                 ],
                                 startPoint: UnitPoint(x: 0.5, y: 0),
                                 endPoint: UnitPoint(x: 0.5, y: 1)
-                            )
-                            )
-                            .stroke(Color(red: 0.71, green: 0.73, blue: 0.97), lineWidth: 4.52381)
-                            .frame(width: 85, height: 85)
+                                )
+                                )
+                            .frame(width: 130, height: 130)
                     }
                 }
                 Spacer()
@@ -145,22 +135,22 @@ struct PreviewView: View {
                 HStack (spacing: 30) {
                     //FLASH
                     Button {
-                        model.camera.toggleFlash()
+                        model.toggleFlash()
                     } label: {
-                        Image(systemName: model.camera.flashModeIcon)
+                        Image(systemName: model.flashModeIcon)
                             .foregroundStyle(Color.white)
-                            .padding(8)
+                            .padding(4)
                     }
                     .foregroundStyle(.white)
                     .buttonStyle(.glassProminent)
                     .tint(.buttonsCamera)
                     //SWITCH
                     Button {
-                        model.camera.switchCaptureDevice()
+                        model.switchCamera()
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 6)
                     }
                     .foregroundStyle(.white)
                     .buttonStyle(.glassProminent)
@@ -171,9 +161,8 @@ struct PreviewView: View {
             .font(.system(size: 28, weight: .bold))
             .foregroundColor(.white)
         }
-        .frame(maxWidth: 240, maxHeight: .infinity)
-        .padding(.vertical, 24)
-
+        .frame(maxWidth: 300, maxHeight: .infinity)
+        
     }
     
 }

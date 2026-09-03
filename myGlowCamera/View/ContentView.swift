@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @Environment(CameraModel.self) var model: CameraModel
 
     var body: some View {
-        CameraView()
+        PhotoWall()
     }
 }
 
@@ -19,4 +20,5 @@ struct ContentView: View {
     @Previewable @State var model = CameraModel()
     ContentView()
         .environment(model)
+        .modelContainer(for: PhotoModel.self)
 }

@@ -10,8 +10,8 @@ import SwiftUI
 import Photos
 
 @Observable
-class CameraModel {
-    let camera = CameraManager()
+final class CameraModel {
+    private let camera = CameraManager()
     var photoLibraryManager: PhotoLibraryManager?
     var previewImage: Image?
     var photoToken: PhotoData?
@@ -54,6 +54,18 @@ class CameraModel {
                 photoToken = photoData
             }
         }
+    }
+    
+    func startCamera() async {
+        await camera.start()
+    }
+
+    func pausePreview() {
+        camera.isPreviewPaused = true
+    }
+
+    func resumePreview() {
+        camera.isPreviewPaused = false
     }
     
     private func unpackPhoto(_ photo: AVCapturePhoto) -> PhotoData? {
@@ -138,6 +150,23 @@ class CameraModel {
         }
         
     }
+    
+    var flashModeIcon: String {
+        camera.flashModeIcon
+    }
+
+    func toggleFlash() {
+        camera.toggleFlash()
+    }
+
+    func switchCamera() {
+        camera.switchCaptureDevice()
+    }
+    
+    func clearPhoto() {
+        photoToken = nil
+    }
+    
 }
 
 
