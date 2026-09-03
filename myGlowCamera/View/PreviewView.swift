@@ -10,7 +10,6 @@ import SwiftUI
 struct PreviewView: View {
     @Environment(CameraModel.self) var model: CameraModel
     
-    //TODO: Chegar em casa e resolver a lentidão da troca de zoom e de camera
     var body: some View {
         NavigationStack {
             ZStack {
@@ -20,10 +19,8 @@ struct PreviewView: View {
                     ImageView(image: model.previewImage)
                         .clipShape(RoundedRectangle(cornerRadius: 24))
                         .frame(maxWidth: 318, maxHeight: .infinity)
-                        .border(Color.red, width: 1)
                     Spacer()
                     buttonsView()
-                        .border(Color.red, width: 1)
                     Spacer()
                 }
                 if let countdown = model.countdown {
@@ -138,9 +135,9 @@ struct PreviewView: View {
                 HStack (spacing: 30) {
                     //FLASH
                     Button {
-                        model.camera.toggleFlash()
+                        model.toggleFlash()
                     } label: {
-                        Image(systemName: model.camera.flashModeIcon)
+                        Image(systemName: model.flashModeIcon)
                             .foregroundStyle(Color.white)
                             .padding(4)
                     }
@@ -149,7 +146,7 @@ struct PreviewView: View {
                     .tint(.buttonsCamera)
                     //SWITCH
                     Button {
-                        model.camera.switchCaptureDevice()
+                        model.switchCamera()
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .padding(.horizontal, 2)

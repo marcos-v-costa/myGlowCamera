@@ -11,7 +11,7 @@ import Photos
 
 @Observable
 final class CameraModel {
-    let camera = CameraManager()
+    private let camera = CameraManager()
     var photoLibraryManager: PhotoLibraryManager?
     var previewImage: Image?
     var photoToken: PhotoData?
@@ -54,6 +54,18 @@ final class CameraModel {
                 photoToken = photoData
             }
         }
+    }
+    
+    func startCamera() async {
+        await camera.start()
+    }
+
+    func pausePreview() {
+        camera.isPreviewPaused = true
+    }
+
+    func resumePreview() {
+        camera.isPreviewPaused = false
     }
     
     private func unpackPhoto(_ photo: AVCapturePhoto) -> PhotoData? {
@@ -138,6 +150,23 @@ final class CameraModel {
         }
         
     }
+    
+    var flashModeIcon: String {
+        camera.flashModeIcon
+    }
+
+    func toggleFlash() {
+        camera.toggleFlash()
+    }
+
+    func switchCamera() {
+        camera.switchCaptureDevice()
+    }
+    
+    func clearPhoto() {
+        photoToken = nil
+    }
+    
 }
 
 

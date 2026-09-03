@@ -11,23 +11,21 @@ struct CameraView: View {
     @Environment(CameraModel.self) var model: CameraModel
 
     var body: some View {
-
         ZStack {
             if let _ = model.photoToken {
                 SaveImageView()
             } else {
                 PreviewView()
                     .onAppear {
-                        model.camera.isPreviewPaused = false
+                        model.resumePreview()
                     }
                     .onDisappear {
-                        model.camera.isPreviewPaused = true
+                        model.pausePreview()
                     }
             }
-
         }
         .task {
-            await model.camera.start()
+            await model.startCamera()
         }
         .environment(model)
     }

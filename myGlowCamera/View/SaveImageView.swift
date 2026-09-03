@@ -36,15 +36,7 @@ struct SaveImageView: View {
         .toolbar {
             ToolbarItem (placement: .navigationBarLeading) {
                 Button {
-                    Task {
-                        guard let photo = renderedPolaroidData else { return }
-                        
-                        let polaroid = PhotoModel(imageData: photo)
-                        modelContext.insert(polaroid)
-                        model.photoToken = nil
-                        
-                    }
-                    dismiss()
+                    savePhotoAndDismiss()
                 } label: {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
                         .foregroundStyle(.white)
@@ -60,7 +52,7 @@ struct SaveImageView: View {
     private func buttonsView() -> some View {
         HStack {
             Button {
-                model.photoToken = nil
+                model.clearPhoto()
             } label: {
                 HStack {
                     Image(systemName: "arrow.trianglehead.counterclockwise")
@@ -87,7 +79,7 @@ struct SaveImageView: View {
             isPresented: $saved
         ) {
             Button("OK", role: .cancel) {
-                model.photoToken = nil
+                model.clearPhoto()
                 dismiss()
             }
         } message: {
@@ -116,6 +108,16 @@ struct SaveImageView: View {
                 .resizable()
         }
         return Image("Doll1")
+    }
+    
+    private func savePhotoAndDismiss() {
+        guard let photo = renderedPolaroidData else { return }
+        
+        let polaroid = PhotoModel(imageData: photo)
+        modelContext.insert(polaroid)
+        
+        model.clearPhoto()
+        dismiss()
     }
 }
 
