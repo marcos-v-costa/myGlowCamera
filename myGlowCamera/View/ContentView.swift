@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(CameraModel.self) var model: CameraModel
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        PhotoWall()
     }
 }
 
 #Preview {
+    @Previewable @State var model = CameraModel()
     ContentView()
+        .environment(model)
+        .modelContainer(for: PhotoModel.self)
 }

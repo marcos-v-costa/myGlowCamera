@@ -8,28 +8,25 @@
 import SwiftUI
 
 struct CameraView: View {
-    @State private var model = CameraModel()
+    @Environment(CameraModel.self) var model: CameraModel
 
     var body: some View {
-
         ZStack {
             if let _ = model.photoToken {
                 SaveImageView()
             } else {
                 PreviewView()
                     .onAppear {
-                        model.camera.isPreviewPaused = false
+                        model.resumePreview()
                     }
                     .onDisappear {
-                        model.camera.isPreviewPaused = true
+                        model.pausePreview()
                     }
             }
-
         }
         .task {
-            await model.camera.start()
+            await model.startCamera()
         }
-        .ignoresSafeArea(.all)
         .environment(model)
     }
 }

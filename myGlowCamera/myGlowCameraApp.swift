@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct myGlowCameraApp: App {
+    @State private var model = CameraModel()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(model)
+                .modelContainer(for: PhotoModel.self)
         }
     }
 }

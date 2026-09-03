@@ -5,11 +5,12 @@
 //  Created by marquiros on 30/08/26.
 //
 
-import UIKit
 import Foundation
 import Photos
+import UIKit
 
 class PhotoLibraryManager {
+    
     private var assetCollection: PHAssetCollection?
     private var smartAlbumType: PHAssetCollectionSubtype = .smartAlbumUserLibrary
 

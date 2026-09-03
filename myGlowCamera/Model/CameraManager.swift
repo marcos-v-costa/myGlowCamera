@@ -17,7 +17,7 @@ class CameraManager: NSObject {
     private var deviceInput: AVCaptureDeviceInput?
     private var photoOutput: AVCapturePhotoOutput?
     var flashMode: AVCaptureDevice.FlashMode = .off
-
+    
     private var videoOutput: AVCaptureVideoDataOutput?
     private var sessionQueue: DispatchQueue!
     
@@ -60,7 +60,7 @@ class CameraManager: NSObject {
             }
         }
     }
-        
+    
     var isRunning: Bool {
         captureSession.isRunning
     }
@@ -87,7 +87,7 @@ class CameraManager: NSObject {
     }()
     
     var isPreviewPaused = false
-
+    
     private var addToPreviewStream: ((CIImage) -> Void)?
     
     @ObservationIgnored
@@ -103,13 +103,15 @@ class CameraManager: NSObject {
     
     
     override init() {
-        captureSession.sessionPreset = .low
         super.init()
+        captureSession.sessionPreset = .low
         sessionQueue = DispatchQueue(label: "session queue")
-        captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) ?? availableCaptureDevices.first
+        captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera,
+                                                for: .video,
+                                                position: .front) ?? availableCaptureDevices.first
         
     }
-
+    
     func start() async {
         let authorized = await checkAuthorization()
         guard authorized else {
@@ -160,30 +162,30 @@ class CameraManager: NSObject {
     
     func selectBackCamera(lens: CameraLens) {
         let deviceType: AVCaptureDevice.DeviceType
-
+        
         switch lens {
         case .ultraWide:
             deviceType = .builtInUltraWideCamera
-
+            
         case .wide:
             deviceType = .builtInWideAngleCamera
         }
-
+        
         guard let device = AVCaptureDevice.default(
             deviceType,
             for: .video,
             position: .back
         ) else { return }
-
+        
         captureDevice = device
     }
-
+    
     func takePhoto() {
         guard let photoOutput = self.photoOutput else { return }
         
         sessionQueue.async {
             var photoSettings = AVCapturePhotoSettings()
-
+            
             if photoOutput.availablePhotoCodecTypes.contains(.hevc) {
                 photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
             }
@@ -197,21 +199,35 @@ class CameraManager: NSObject {
             }
             photoSettings.photoQualityPrioritization = .balanced
             
+            var rotation: CGFloat = 90
+            switch UIDevice.current.orientation {
+            case .portrait:
+                rotation = self.isUsingBackCaptureDevice ? 0 : 180
+            case .landscapeLeft:
+                rotation = self.isUsingBackCaptureDevice ? 0 : 180
+            case .landscapeRight:
+                rotation = self.isUsingBackCaptureDevice ? 180 : 0
+            case .portraitUpsideDown:
+                rotation = self.isUsingBackCaptureDevice ? 180 : 0
+            default:
+                break
+            }
+            
             if let photoOutputVideoConnection = photoOutput.connection(with: .video) {
-                photoOutputVideoConnection.videoRotationAngle = RotationAngle.portrait.rawValue
+                photoOutputVideoConnection.videoRotationAngle = rotation
             }
             
             photoOutput.capturePhoto(with: photoSettings, delegate: self)
         }
     }
-
+    
     
     private func updateSessionForCaptureDevice(_ captureDevice: AVCaptureDevice) {
         guard isCaptureSessionConfigured else { return }
         
         captureSession.beginConfiguration()
         defer { captureSession.commitConfiguration() }
-
+        
         for input in captureSession.inputs {
             if let deviceInput = input as? AVCaptureDeviceInput {
                 captureSession.removeInput(deviceInput)
@@ -255,7 +271,7 @@ class CameraManager: NSObject {
             print("Failed to obtain video input.")
             return
         }
-                
+        
         let photoOutput = AVCapturePhotoOutput()
         captureSession.sessionPreset = AVCaptureSession.Preset.photo
         
@@ -282,7 +298,7 @@ class CameraManager: NSObject {
         self.deviceInput = deviceInput
         self.photoOutput = photoOutput
         self.videoOutput = videoOutput
-
+        
         photoOutput.maxPhotoQualityPrioritization = .quality
         
         updateVideoOutputConnection()
@@ -307,20 +323,19 @@ class CameraManager: NSObject {
     
     func setZoom(factor: CGFloat) {
         guard let device = captureDevice else { return }
-
+        
         do {
             try device.lockForConfiguration()
-
+            
             device.videoZoomFactor = min(
                 max(factor, device.minAvailableVideoZoomFactor),
                 device.maxAvailableVideoZoomFactor
             )
-
+            
             device.unlockForConfiguration()
-
+            
         } catch {
             print("Erro ao aplicar zoom")
-            print("a")
         }
     }
     
@@ -358,13 +373,13 @@ class CameraManager: NSObject {
         switch flashMode {
         case .off:
             flashMode = .on
-
+            
         case .on:
             flashMode = .auto
-
+            
         case .auto:
             flashMode = .off
-
+            
         @unknown default:
             flashMode = .off
         }
@@ -374,18 +389,19 @@ class CameraManager: NSObject {
         switch flashMode {
         case .off:
             return "bolt.slash"
-
+            
         case .on:
             return "bolt.fill"
-
+            
         case .auto:
             return "bolt.badge.a"
-
+            
         @unknown default:
             return "bolt.slash"
         }
     }
-
+    
+    
 }
 
 
@@ -407,15 +423,30 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = sampleBuffer.imageBuffer else { return }
-        connection.videoRotationAngle = RotationAngle.portrait.rawValue
+        
+        var rotation: CGFloat = 90
+        switch UIDevice.current.orientation {
+        case .portrait:
+            rotation = isUsingBackCaptureDevice ? 0 : 180
+        case .landscapeLeft:
+            rotation = isUsingBackCaptureDevice ? 0 : 180
+        case .landscapeRight:
+            rotation = isUsingBackCaptureDevice ? 180 : 0
+        case .portraitUpsideDown:
+            rotation = isUsingBackCaptureDevice ? 180 : 0
+        default:
+            break
+        }
+        
+        if connection.isVideoRotationAngleSupported(rotation) {
+            connection.videoRotationAngle = rotation
+        }
         addToPreviewStream?(CIImage(cvPixelBuffer: pixelBuffer))
     }
 }
 
 
 private enum RotationAngle: CGFloat {
-    case portrait = 90
-    case portraitUpsideDown = 270
     case landscapeRight = 180
     case landscapeLeft = 0
 }

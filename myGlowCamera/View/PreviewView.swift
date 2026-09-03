@@ -9,204 +9,166 @@ import SwiftUI
 
 struct PreviewView: View {
     @Environment(CameraModel.self) var model: CameraModel
-    @State private var isRecording: Bool = false
-    @State private var selectedZoom: CGFloat = 1
-    @State private var cameraTimer  = 0
-    @State private var countdown: Int?
-    
-    private let footerHeight: CGFloat = 110.0
     
     var body: some View {
-        ZStack {
-            ImageView(image: model.previewImage)
-                .padding(.bottom, footerHeight + 50)
-                .padding(.top, footerHeight + 50)
-                .overlay(alignment: .bottom) {
+        NavigationStack {
+            ZStack {
+                Color(.cameraBackground).ignoresSafeArea(edges: .all)
+                HStack  {
+                    Spacer()
+                    ImageView(image: model.previewImage)
+                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                        .frame(maxWidth: 318, maxHeight: .infinity)
+                    Spacer()
                     buttonsView()
-                        .frame(width: .infinity, height: footerHeight)
+                    Spacer()
                 }
-                .background(Color.black)
-            if let countdown = countdown {
-                Text("\(countdown)")
-                    .font(.system(size: 100, weight: .bold))
+                if let countdown = model.countdown {
+                    Text("\(countdown)")
+                        .font(.system(size: 100, weight: .bold))
+                        .foregroundStyle(.white)
+                        .shadow(radius: 10)
+                }
+            }
+            
+            .toolbar {
+                ToolbarItem (placement: .title) {
+                    Text("GlowShot")
+                        .foregroundStyle(Color.black)
+                        .bold()
+                }
+                
+                ToolbarItem (placement: .confirmationAction) {
+                    Button {
+                        model.changeCameraTimer()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "timer")
+                            Text(model.timerLabel)
+                        }
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .padding(8)
+                        
+                    }
                     .foregroundStyle(.white)
-                    .shadow(radius: 10)
+                    .buttonStyle(.glassProminent)
+                    .tint(.buttonsCamera)
+                }
             }
         }
     }
     
     private func buttonsView() -> some View {
-        GeometryReader { geometry in
-            let frameHeight = geometry.size.height
-            VStack (spacing: 50) {
-                HStack(alignment: .center, spacing: 30){
-                    Button {
-                        changeCameraTimer()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "timer")
-                            Text(timerLabel)
-                        }
-                        .padding(8)
-
-                    }
-                    .foregroundStyle(
-                        cameraTimer == 0
-                        ? .white
-                        : .red
-                    )
-                    .buttonStyle(.glass)
-                    HStack(spacing: 30) {
-                        if model.camera.isUsingBackCaptureDevice {
-                            Button("0.5x") {
-                                selectedZoom = 0.5
-                                model.camera.selectBackCamera(lens: .ultraWide)
-                            }
-                            .overlay {
-                                if selectedZoom == 0.5 {
-                                    Text("0.5x")
-                                        .frame(minWidth: 40, minHeight: 40)
-                                        .background(Color.red)
-                                        .clipShape(Circle())
-                                }
-                            }
-                            Button("1x") {
-                                selectedZoom = 1
-                                model.camera.selectBackCamera(lens: .wide)
-                                model.camera.setZoom(factor: 1)
-                            }
-                            
-                            .toggleStyle(.button)
-                            .overlay {
-                                if selectedZoom == 1 {
-                                    Text("1x")
-                                        .frame(minWidth: 40, minHeight: 40)
-                                        .background(Color.red)
-                                        .clipShape(Circle())
-                                }
-                            }
-                            
-                            Button("2x") {
-                                selectedZoom = 2
-                                model.camera.setZoom(factor: 2)
-                            }
-                            .overlay {
-                                if selectedZoom == 2 {
-                                    Text("2x")
-                                        .frame(minWidth: 40, minHeight: 40)
-                                        .background(Color.red)
-                                        .clipShape(Circle())
-                                }
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundStyle(.white)
-                    .font(.headline)
-                    .padding(.bottom, 30)
+        HStack (spacing: 0) {
+            //BOTÕES DE ZOOM (0.5, 1 e 2)
+            VStack(spacing: 50) {
+                Button("0.5x") {
+                    model.selectZoom(0.5)
                 }
-                .frame(maxWidth: .infinity)
-                HStack {
+                .foregroundStyle(.buttonsCamera)
+                .overlay {
+                    if model.selectedZoom == 0.5 {
+                        Text("0.5x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
+                    }
+                }
+                Button("1x") {
+                    model.selectZoom(1)
+                }
+                .foregroundStyle(.buttonsCamera)
+                .toggleStyle(.button)
+                .overlay {
+                    if model.selectedZoom == 1 {
+                        Text("1x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
+                    }
+                }
+                
+                Button("2x") {
+                    model.selectZoom(2)
+                }
+                .foregroundStyle(.buttonsCamera)
+                
+                .overlay {
+                    if model.selectedZoom == 2 {
+                        Text("2x")
+                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .frame(minWidth: 50, minHeight: 50)
+                            .background(Color.buttonsCamera)
+                            .clipShape(Circle())
+                    }
+                }
+            }
+            .foregroundStyle(.white)
+            .padding(.bottom, 24)
+            
+            Spacer()
+            //BOTÕES DE TIRAR FOTO, FLASH e SWITCH
+            VStack {
+                Spacer()
+                //TIRAR FOTO
+                Button {
+                    model.startCameraTimer()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(
+                                stops: [
+                                Gradient.Stop(color: Color(red: 0.53, green: 0.58, blue: 0.77), location: 0.23),
+                                Gradient.Stop(color: Color(red: 0.33, green: 0.38, blue: 0.52), location: 0.95),
+                                ],
+                                startPoint: UnitPoint(x: 0.5, y: 0),
+                                endPoint: UnitPoint(x: 0.5, y: 1)
+                                )
+                                )
+                            .frame(width: 130, height: 130)
+                    }
+                }
+                Spacer()
+                //FLASH e SWITCH
+                HStack (spacing: 30) {
+                    //FLASH
                     Button {
-                        model.camera.toggleFlash()
+                        model.toggleFlash()
                     } label: {
-                        Image(systemName: model.camera.flashModeIcon)
+                        Image(systemName: model.flashModeIcon)
                             .foregroundStyle(Color.white)
-                            .padding(8)
-
+                            .padding(4)
                     }
-                    .buttonStyle(.glass)
-
-                    Spacer()
+                    .foregroundStyle(.white)
+                    .buttonStyle(.glassProminent)
+                    .tint(.buttonsCamera)
+                    //SWITCH
                     Button {
-                        startCameraTimer()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(.white)
-                                .frame(width:  frameHeight + 20, height: frameHeight + 20)
-                        }
-                        .padding(4)
-
-                    }
-                    .buttonStyle(.glass)
-
-                    Spacer()
-                    
-                    Button {
-                        model.camera.switchCaptureDevice()
+                        model.switchCamera()
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 10)
-
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 6)
                     }
-                    .buttonStyle(.glass)
-
-                    
+                    .foregroundStyle(.white)
+                    .buttonStyle(.glassProminent)
+                    .tint(.buttonsCamera)
                 }
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .center)
-                Spacer()
-                Spacer()
+                
+            }
+            .font(.system(size: 28, weight: .bold))
+            .foregroundColor(.white)
+        }
+        .frame(maxWidth: 300, maxHeight: .infinity)
+        
+    }
+    
+}
 
-            }
-            .frame(maxWidth: .infinity, maxHeight: frameHeight)
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 32)
-    }
-    
-    var timerLabel: String {
-        switch cameraTimer {
-        case 0:
-            return "Off"
-            
-        default:
-            return "\(cameraTimer)s"
-        }
-    }
-    
-    func changeCameraTimer() {
-        switch cameraTimer {
-        case 0:
-            cameraTimer = 3
-            
-        case 3:
-            cameraTimer = 5
-            
-        case 5:
-            cameraTimer = 10
-            
-        default:
-            cameraTimer = 0
-        }
-    }
-    
-    
-    func startCameraTimer() {
-        guard cameraTimer > 0 else {
-            model.camera.takePhoto()
-            return
-        }
-        
-        countdown = cameraTimer
-        
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            guard let current = countdown else {
-                timer.invalidate()
-                return
-            }
-            
-            if current <= 1 {
-                timer.invalidate()
-                countdown = nil
-                model.camera.takePhoto()
-            } else {
-                countdown = current - 1
-            }
-            
-        }
-    }
+#Preview {
+    @Previewable @State var model = CameraModel()
+    PreviewView()
+        .environment(model)
 }

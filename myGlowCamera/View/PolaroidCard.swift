@@ -8,16 +8,19 @@
 import SwiftUI
 
 struct PolaroidCard: View {
-    var polaroidPhoto: String
+    var image: Image?
     
     var body: some View {
         VStack(spacing: 24) {
-            Image(polaroidPhoto)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 200, height: 200)
-                .clipped()
-                .cornerRadius(4)
+            if let image = image {
+                image
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 200, height: 200)
+                    .clipped()
+                    .cornerRadius(4)
+            }
+            
             
             Image("myGlow")
                 .resizable()
@@ -32,14 +35,14 @@ struct PolaroidCard: View {
     }
 }
 
-#Preview {
-    ScrollView (.horizontal) {
-        HStack (spacing: 32) {
-            ForEach(0..<8) { _ in
-                PolaroidCard(polaroidPhoto: "foto-polaroid")
-            }
-        }
-        .padding(.vertical, 32)
-        .padding(.horizontal, 32)
-    }
-}
+//#Preview {
+//    ScrollView (.horizontal) {
+//        HStack (spacing: 32) {
+//            ForEach(0..<8) { _ in
+//                PolaroidCard(polaroidPhoto: "foto-polaroid")
+//            }
+//        }
+//        .padding(.vertical, 32)
+//        .padding(.horizontal, 32)
+//    }
+//}
