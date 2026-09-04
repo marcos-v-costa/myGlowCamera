@@ -8,9 +8,12 @@
 import SwiftUI
 import SwiftData
 
+
+
 @main
 struct myGlowCameraApp: App {
     @State private var model = CameraModel()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
         WindowGroup {
@@ -19,4 +22,8 @@ struct myGlowCameraApp: App {
                 .modelContainer(for: PhotoModel.self)
         }
     }
+    
 }
+
+
+

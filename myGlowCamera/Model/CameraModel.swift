@@ -59,6 +59,9 @@ final class CameraModel {
     func startCamera() async {
         await camera.start()
     }
+    func stopCamera() {
+        camera.stop()
+    }
 
     func pausePreview() {
         camera.isPreviewPaused = true

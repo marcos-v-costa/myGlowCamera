@@ -27,10 +27,7 @@ struct SaveImageView: View {
             HStack  {
                 polaroid
                     .rotationEffect(.degrees(-4.08))
-                    .border(Color.red, width: 1)
                 buttonsView()
-                    .border(Color.red, width: 1)
-
             }
         }
         .toolbar {

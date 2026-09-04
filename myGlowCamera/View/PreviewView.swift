@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct PreviewView: View {
     @Environment(CameraModel.self) var model: CameraModel
+    
     
     var body: some View {
         NavigationStack {
@@ -29,6 +31,14 @@ struct PreviewView: View {
                         .foregroundStyle(.white)
                         .shadow(radius: 10)
                 }
+            }
+            .onAppear {
+                OrientationManager.shared.updateOrientation(to: .landscapeRight, forceRotateTo: .landscapeRight)
+            }
+            .onDisappear{
+                OrientationManager.shared.updateOrientation(to: .landscape)
+                model.stopCamera()
+                
             }
             
             .toolbar {
@@ -120,13 +130,13 @@ struct PreviewView: View {
                         Circle()
                             .fill(LinearGradient(
                                 stops: [
-                                Gradient.Stop(color: Color(red: 0.53, green: 0.58, blue: 0.77), location: 0.23),
-                                Gradient.Stop(color: Color(red: 0.33, green: 0.38, blue: 0.52), location: 0.95),
+                                    Gradient.Stop(color: Color(red: 0.53, green: 0.58, blue: 0.77), location: 0.23),
+                                    Gradient.Stop(color: Color(red: 0.33, green: 0.38, blue: 0.52), location: 0.95),
                                 ],
                                 startPoint: UnitPoint(x: 0.5, y: 0),
                                 endPoint: UnitPoint(x: 0.5, y: 1)
-                                )
-                                )
+                            )
+                            )
                             .frame(width: 130, height: 130)
                     }
                 }

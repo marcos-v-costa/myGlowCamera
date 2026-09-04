@@ -431,9 +431,9 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         case .landscapeLeft:
             rotation = isUsingBackCaptureDevice ? 0 : 180
         case .landscapeRight:
-            rotation = isUsingBackCaptureDevice ? 180 : 0
+            rotation = isUsingBackCaptureDevice ? 0 : 180
         case .portraitUpsideDown:
-            rotation = isUsingBackCaptureDevice ? 180 : 0
+            rotation = isUsingBackCaptureDevice ? 0 : 180
         default:
             break
         }
@@ -446,7 +446,3 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
 }
 
 
-private enum RotationAngle: CGFloat {
-    case landscapeRight = 180
-    case landscapeLeft = 0
-}
